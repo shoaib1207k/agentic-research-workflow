@@ -38,7 +38,7 @@ flowchart TD
     Critic -->|Fail: research| Researcher
     Critic -->|Fail: summarize| Summarizer
     Critic -->|Fail: write| Writer
-
+```
 
 ## Installation
 
@@ -47,13 +47,16 @@ flowchart TD
 ```bash
 git clone <repository-url>
 cd agentic-research-workflow
-
+```
 2. Install the dependencies
+```bash
 poetry install
+```
 
 3. Run the FastAPI server:
+```bash
 poetry run uvicorn app.main:app --reload
-
+```
 or Use launch.json
 
 
