@@ -1,7 +1,11 @@
+import logging
+
 from langchain_ollama import ChatOllama
 from langchain.schema import HumanMessage, SystemMessage
 
 from app.graph.state import ResearchState
+
+logger = logging.getLogger(__name__)
 
 class CriticNode:
     def __init__(self):
@@ -52,7 +56,10 @@ class CriticNode:
         state.next_step = self.chat.invoke(next_message).content.strip().lower()
         state.is_passed_by_critic = "pass" in response.content.lower() and state.next_step == "end"
 
-        print("*"*80)
-        print("Critique Results:", state.critic_results)
+        logger.info("="*80)
+        logger.info(f"Critique Results: {state.critic_results}")
+        logger.info(f"Next Step: {state.next_step}")
+        logger.info(f"Passed: {state.is_passed_by_critic}")
+        logger.info("="*80)
 
         return { "critic_results": state.critic_results, "is_passed_by_critic": state.is_passed_by_critic, "next_step": state.next_step }

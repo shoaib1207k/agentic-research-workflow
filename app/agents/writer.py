@@ -1,13 +1,17 @@
+import logging
+
 from langchain_ollama import ChatOllama
 from langchain.schema import HumanMessage, SystemMessage
 
 from app.graph.state import ResearchState
 
+logger = logging.getLogger(__name__)
+
 class WriterNode:
     def __init__(self):
         self.chat = ChatOllama(model="mistral", temperature=0)
 
-    def __call__(self, state: ResearchState):
+    async def __call__(self, state: ResearchState):
 
         summary = state.summary
         research_topic = state.research_topic
@@ -35,6 +39,7 @@ class WriterNode:
         response = self.chat.invoke(messages)
         state.writing_results = response.content
         state.is_written = True
-        print("Writing Results:", state.writing_results)
+        
+        logger.info(f"Writing completed. Article length: {len(state.writing_results)} characters")
 
         return {"writing_results": state.writing_results}

@@ -1,7 +1,11 @@
+import logging
+
 from langchain_ollama import ChatOllama
 from langchain.schema import HumanMessage, SystemMessage
 
 from app.graph.state import ResearchState
+
+logger = logging.getLogger(__name__)
 
 class SummarizerNode:
     def __init__(self):
@@ -36,8 +40,8 @@ class SummarizerNode:
 
         state.summary = response.content
         state.is_summarized = True
-        print("Summary:", state.summary)
-
+        
+        logger.info(f"Summary completed. Length: {len(state.summary)} characters")
 
         return {"summary": state.summary, "is_summarized": state.is_summarized}
 

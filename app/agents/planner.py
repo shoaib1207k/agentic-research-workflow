@@ -1,9 +1,12 @@
+import json
+import logging
 
 from app.graph.state import ResearchState
 from langchain_ollama import ChatOllama
 from langchain.schema import HumanMessage, SystemMessage
 from langgraph.graph import END
-import json
+
+logger = logging.getLogger(__name__)
 
 
 class PlannerNode:
@@ -24,25 +27,33 @@ class PlannerNode:
         ]
 
         response = self.chat.invoke(messages)
-        # parse the response content as json
-        response_data = json.loads(response.content)
-        complexity = response_data.get("complexity", "Unknown")
-        token_estimate = response_data.get("token_estimate", 0)
+        
+        # Parse the response content as JSON with error handling
+        try:
+            response_data = json.loads(response.content)
+            complexity = response_data.get("complexity", "Medium")
+            token_estimate = response_data.get("token_estimate", 500)
+        except json.JSONDecodeError as e:
+            logger.error(f"Error parsing JSON response: {e}")
+            logger.error(f"Response content: {response.content}")
+            # Fallback to default values
+            complexity = "Medium"
+            token_estimate = 500
 
-        print("Complexity:", complexity)
-        print("Token Estimate:", token_estimate)
+        logger.info(f"Complexity: {complexity}, Token Estimate: {token_estimate}")
 
         return {"research_topic": research_topic, "research_complexity": complexity, "token_estimate": token_estimate}
     
 
     async def plan_next(self, state: ResearchState):
+        """Route to the next node based on critic feedback."""
         if state.is_passed_by_critic:
             return END
-        elif state.critic_results == "research":
+        elif state.next_step == "research":
             return "researcher"
-        elif state.critic_results == "summarize":
+        elif state.next_step == "summarize":
             return "summarizer"
-        elif state.critic_results == "write":
+        elif state.next_step == "write":
             return "writer"
         else:
-            return "planner"
+            return END

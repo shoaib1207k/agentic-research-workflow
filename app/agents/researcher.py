@@ -1,7 +1,11 @@
+import logging
+
 from langchain_ollama import ChatOllama
 from langchain.schema import HumanMessage, SystemMessage
 
 from app.graph.state import ResearchState
+
+logger = logging.getLogger(__name__)
 
 
 class ResearchNode:
@@ -39,9 +43,8 @@ class ResearchNode:
         response = self.chat.invoke(messages)
 
         state.research_results = response.content
-
-        print("Research Results:", state.research_results)
-
-        state.is_researched = True 
+        state.is_researched = True
+        
+        logger.info(f"Research completed. Results length: {len(state.research_results)} characters") 
 
         return {"research_results": state.research_results, "is_researched": state.is_researched}
